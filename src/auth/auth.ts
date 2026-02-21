@@ -1,18 +1,17 @@
+import bcryptjs from "bcryptjs";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import { ZodError } from "zod";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { getUserFromDb } from "../utils/user";
 import { signInSchema } from "../schema/zod";
-import bcryptjs from "bcryptjs";
+import { getUserFromDb } from "../utils/user";
 import prisma from "../utils/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
+      name: "Account",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -26,10 +25,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const { email, password } =
             await signInSchema.parseAsync(credentials);
 
-          // logic to verify if the user exists
           const user = await getUserFromDb(email);
 
-          if (!user) {
+          if (!user || !user.password) {
             throw new Error("Неверный ввод данных");
           }
 
@@ -48,8 +46,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // Return `null` to indicate that the credentials are invalid
             return null;
           }
+          return null;
         }
-        return null;
       },
     }),
   ],
