@@ -5,8 +5,8 @@ import generateRecipes from "./002_recipes";
 
 async function main() {
   try {
-    // await generateUsers(100);
-    // await generateIngredients(100);
+    await generateUsers(100);
+    await generateIngredients(100);
     await generateRecipes(100);
   } catch (e) {
     console.error(e);
