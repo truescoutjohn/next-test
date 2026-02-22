@@ -1,7 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useAuthStore } from "../store/auth.store";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import { useIngredientStore } from "../store/ingredient.store";
 import { useRecipeStore } from "../store/recipe.store";
 
@@ -21,7 +21,7 @@ const AppLoader = ({ children }: IProps) => {
 
   useEffect(() => {
     if (isAuth) {
-      loadIngredients();
+      loadIngredients("");
     }
   }, [isAuth, loadIngredients]);
 

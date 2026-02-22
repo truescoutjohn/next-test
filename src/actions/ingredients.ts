@@ -3,7 +3,6 @@
 import { ZodError } from "zod";
 import { ingredientsSchema } from "../schema/zod";
 import prisma from "../utils/prisma";
-import { NextRequest } from "next/server";
 
 export const createIngredient = async (formData: FormData) => {
   try {

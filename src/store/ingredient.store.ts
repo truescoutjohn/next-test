@@ -10,7 +10,7 @@ interface IngredientState {
   ingredients: IIngredient[];
   isLoading: boolean;
   error: string | null;
-  loadIngredients: (searchString: string) => Promise<void>;
+  loadIngredients: (searchString?: string) => Promise<void>;
   addIngredient: (formData: FormData) => Promise<void>;
   removeIngredient: (id: string) => Promise<void>;
 }
