@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button, Form, Input, Select, SelectItem } from "@heroui/react";
-import { useIngredientStore } from "../store/ingredient.store";
+import { Button, Form, Input } from "@heroui/react";
 import { useRecipeStore } from "../store/recipe.store";
 import { IRecipe } from "../types/recipe";
 import { useRouter } from "next/navigation";
+import IngredientSelect from "../components/UI/select/ingredients-select";
 
 interface RecipeFormProps {
   initialRecipe?: IRecipe;
@@ -42,7 +42,6 @@ const RecipeForm = ({ initialRecipe }: RecipeFormProps) => {
       : [{ id: 0, ingredientId: "", quantity: null }],
   );
 
-  const { ingredients } = useIngredientStore();
   const { addRecipe, updateRecipe } = useRecipeStore();
   const [isPending, startTransition] = useTransition();
 
@@ -136,8 +135,8 @@ const RecipeForm = ({ initialRecipe }: RecipeFormProps) => {
 
       <div className="space-y-2 w-full">
         {ingredientFields.map((field, index) => (
-          <div key={field.id} className="flex gap-2 items-center">
-            <Select
+          <div key={field.id} className="flex items-end gap-2 h-10">
+            {/* <Select
               isRequired
               name={`ingredient_${index}`}
               placeholder="Выберите ингредиент"
@@ -157,7 +156,8 @@ const RecipeForm = ({ initialRecipe }: RecipeFormProps) => {
                   {ingredient.name}
                 </SelectItem>
               ))}
-            </Select>
+            </Select> */}
+            <IngredientSelect />
             <Input
               isRequired
               name={`quantity_${index}`}

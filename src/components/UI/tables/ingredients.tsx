@@ -64,7 +64,7 @@ const IngredientsTable = () => {
             <TableCell>{getUnitLabel(ingredient.unit)}</TableCell>
             <TableCell>
               {ingredient.pricePerUnit !== null
-                ? `${ingredient.pricePerUnit} ₽`
+                ? `${ingredient.pricePerUnit} ₴`
                 : "-"}
             </TableCell>
             <TableCell>{ingredient.description || "-"}</TableCell>

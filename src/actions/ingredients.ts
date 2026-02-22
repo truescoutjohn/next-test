@@ -3,6 +3,7 @@
 import { ZodError } from "zod";
 import { ingredientsSchema } from "../schema/zod";
 import prisma from "../utils/prisma";
+import { NextRequest } from "next/server";
 
 export const createIngredient = async (formData: FormData) => {
   try {
@@ -43,9 +44,17 @@ export const createIngredient = async (formData: FormData) => {
   }
 };
 
-export async function getIngredients() {
+export async function getIngredients(searchString: string) {
   try {
-    const ingredients = await prisma.ingredient.findMany();
+    const ingredients = await prisma.ingredient.findMany({
+      where: {
+        name: {
+          contains: searchString,
+          mode: "insensitive",
+        },
+      },
+      take: 20,
+    });
     return { success: true, ingredients };
   } catch (error) {
     console.error("Ошибка получения ингредиентов:", error);

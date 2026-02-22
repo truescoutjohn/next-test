@@ -10,7 +10,7 @@ interface IngredientState {
   ingredients: IIngredient[];
   isLoading: boolean;
   error: string | null;
-  loadIngredients: () => Promise<void>;
+  loadIngredients: (searchString: string) => Promise<void>;
   addIngredient: (formData: FormData) => Promise<void>;
   removeIngredient: (id: string) => Promise<void>;
 }
@@ -19,10 +19,10 @@ export const useIngredientStore = create<IngredientState>((set) => ({
   ingredients: [],
   isLoading: false,
   error: null,
-  loadIngredients: async () => {
+  loadIngredients: async (searchString: string = "") => {
     set({ isLoading: true, error: null });
     try {
-      const response = await getIngredients();
+      const response = await getIngredients(searchString);
 
       if (response.success) {
         set({ ingredients: response.ingredients, isLoading: false });
