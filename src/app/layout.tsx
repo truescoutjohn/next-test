@@ -8,7 +8,7 @@ import { auth } from "../auth/auth";
 import "./globals.css";
 import AppLoader from "../hoc/app-loader";
 import Title from "../components/UI/layout/title";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { NextSSRPlugin } from "../../node_modules/@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/src/app/api/uploadthing/core";
 
