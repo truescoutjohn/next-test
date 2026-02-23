@@ -11,12 +11,14 @@ import { useAuthStore } from "../../store/auth.store";
 
 interface RecipeCardProps {
   recipe: IRecipe;
+  index: number;
 }
 
-const RecipeCard = ({ recipe }: RecipeCardProps) => {
+const RecipeCard = ({ recipe, index }: RecipeCardProps) => {
   const { removeRecipe } = useRecipeStore();
   const { isAuth } = useAuthStore();
   const [isPending, startTransition] = useTransition();
+  const FIRST_THREE_CARDS = 3;
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -42,9 +44,11 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
           <div className="relative h-48 group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
             <Image
               src={recipe.imageUrl}
-              alt="Image for recipe"
+              alt={recipe.name}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              priority={index < FIRST_THREE_CARDS}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
             />
           </div>
         ) : (
