@@ -13,6 +13,9 @@ export default function Home() {
   const { recipes, isLoading, error, loadRecipes } = useRecipeStore();
   const [skip, setSkip] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const RECIPE_PER_PAGE = 6;
+  const RECIPE_PER_PAGE_MOBILE = 4;
+  const SIZE_MOBILE_SCREEN = 768;
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -22,7 +25,8 @@ export default function Home() {
     if (isLoading || !hasMore) return;
 
     try {
-      const take = 6;
+      const isMobile = window.innerWidth < SIZE_MOBILE_SCREEN;
+      const take = isMobile ? RECIPE_PER_PAGE_MOBILE : RECIPE_PER_PAGE;
       const newRecipes = await loadRecipes(take, skip);
 
       if (newRecipes && newRecipes.length < take) {

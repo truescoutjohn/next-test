@@ -8,6 +8,9 @@ import { auth } from "../auth/auth";
 import "./globals.css";
 import AppLoader from "../hoc/app-loader";
 import Title from "../components/UI/layout/title";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/src/app/api/uploadthing/core";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +40,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <Providers>
           <SessionProvider session={session}>
             <AppLoader>
