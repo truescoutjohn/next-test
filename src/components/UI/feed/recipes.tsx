@@ -1,13 +1,8 @@
 "use client";
-// Все твои импорты: Zustand, InView, RecipeItem...
-import { Skeleton } from "@heroui/react";
 
 import { useRecipeStore } from "../../../store/recipe.store";
-import { Button } from "@heroui/react";
-import Link from "next/link";
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import RecipeList from "./recipes";
 import { IRecipe } from "@/src/types/recipe";
 import RecipeCard from "../../common/recipe-card";
 import { motion } from "framer-motion";
@@ -18,10 +13,14 @@ export default function RecipeFeed({
   initialRecipes: IRecipe[];
 }) {
   const { recipes, isLoading, loadRecipes } = useRecipeStore();
-  const [skip, setSkip] = useState(initialRecipes.length); // Начинаем со смещения
+  const [skip, setSkip] = useState(initialRecipes.length);
   const [hasMore, setHasMore] = useState(initialRecipes.length >= 6);
+  const MOBILE_SCREEN_WIDTH = 768;
+  const IMAGE_PER_PAGE = 6;
+  const IMAGE_PER_PAGE_MOBILE = 4;
+  const isMobile = window.innerWidth < MOBILE_SCREEN_WIDTH;
+  const initialLoadCount = isMobile ? IMAGE_PER_PAGE_MOBILE : IMAGE_PER_PAGE;
 
-  // Инициализируем стор серверными данными ОДИН раз
   useEffect(() => {
     if (useRecipeStore.getState().recipes.length === 0) {
       useRecipeStore.setState({ recipes: initialRecipes });
@@ -54,7 +53,7 @@ export default function RecipeFeed({
             delay: index * 0.1,
           }}
         >
-          <RecipeCard recipe={recipe} index={index} />
+          <RecipeCard recipe={recipe} isPriority={index < initialLoadCount} />
         </motion.div>
       ))}
       {hasMore && <div ref={ref} className="h-10 w-full" />}

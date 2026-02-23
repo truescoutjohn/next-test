@@ -11,14 +11,13 @@ import { useAuthStore } from "../../store/auth.store";
 
 interface RecipeCardProps {
   recipe: IRecipe;
-  index: number;
+  isPriority: boolean;
 }
 
-const RecipeCard = ({ recipe, index }: RecipeCardProps) => {
+const RecipeCard = ({ recipe, isPriority }: RecipeCardProps) => {
   const { removeRecipe } = useRecipeStore();
   const { isAuth } = useAuthStore();
   const [isPending, startTransition] = useTransition();
-  const FIRST_THREE_CARDS = 3;
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -46,7 +45,7 @@ const RecipeCard = ({ recipe, index }: RecipeCardProps) => {
               src={recipe.imageUrl}
               alt={recipe.name}
               fill
-              priority={index < FIRST_THREE_CARDS}
+              priority={isPriority}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
             />
