@@ -1,7 +1,7 @@
 "use client";
 
 import { useRecipeStore } from "../../../store/recipe.store";
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { IRecipe } from "@/src/types/recipe";
 import RecipeCard from "../../common/recipe-card";
@@ -18,8 +18,9 @@ export default function RecipeFeed({
   const MOBILE_SCREEN_WIDTH = 768;
   const IMAGE_PER_PAGE = 6;
   const IMAGE_PER_PAGE_MOBILE = 4;
-  const isMobile = window.innerWidth < MOBILE_SCREEN_WIDTH;
-  const initialLoadCount = isMobile ? IMAGE_PER_PAGE_MOBILE : IMAGE_PER_PAGE;
+  const [initialLoadCount, setInitialLoadCount] = useState(
+    IMAGE_PER_PAGE_MOBILE,
+  );
 
   useEffect(() => {
     if (useRecipeStore.getState().recipes.length === 0) {
@@ -38,6 +39,15 @@ export default function RecipeFeed({
     }
   }, [inView, hasMore, isLoading, skip]);
 
+  const updateInitialLoadCount = useEffectEvent((number: number) => {
+    setInitialLoadCount(number);
+  });
+
+  useEffect(() => {
+    const isMobile = window.innerWidth < MOBILE_SCREEN_WIDTH;
+    updateInitialLoadCount(isMobile ? IMAGE_PER_PAGE_MOBILE : IMAGE_PER_PAGE);
+  }, []);
+
   const allRecipes = recipes.length > 0 ? recipes : initialRecipes;
 
   return (
@@ -45,7 +55,7 @@ export default function RecipeFeed({
       {allRecipes.map((recipe, index) => (
         <motion.div
           key={recipe.id}
-          initial={{ opacity: 0, y: 20 }}
+          initial={index < initialLoadCount ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
             duration: 0.5,
