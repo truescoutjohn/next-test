@@ -41,12 +41,7 @@ export default async function RootLayout({
           <SessionProvider session={session}>
             <AppLoader>
               <Header />
-              <main
-                className="flex flex-col w-full justify-start"
-                style={{
-                  height: `calc(100vh - ${layoutConfig.headerHeight} - ${layoutConfig.footerHeight})`,
-                }}
-              >
+              <main className="flex flex-col w-full justify-start">
                 <Title />
 
                 {children}

@@ -17,7 +17,7 @@ interface IRecipeState {
   recipes: IRecipe[];
   isLoading: boolean;
   error: string | null;
-  loadRecipes: () => Promise<void>;
+  loadRecipes: (amount: number, skip: number) => Promise<IRecipe[] | null>;
   addRecipe: (formData: FormData) => Promise<IActionResult>;
   updateRecipe: (id: string, formData: FormData) => Promise<IActionResult>;
   removeRecipe: (id: string) => Promise<void>;
@@ -27,21 +27,22 @@ export const useRecipeStore = create<IRecipeState>((set) => ({
   recipes: [],
   isLoading: false,
   error: null,
-  loadRecipes: async () => {
-    set({ isLoading: true, error: null });
+  loadRecipes: async (take: number, skip: number) => {
+    set({ isLoading: skip === 0 });
 
-    try {
-      const result = await getRecipes();
+    const result = await getRecipes(take, skip);
+    const newRecipes = result.recipes;
 
-      if (result.success) {
-        set({ recipes: result.recipes, isLoading: false });
-      } else {
-        set({ error: result.error, isLoading: false });
-      }
-    } catch (error) {
-      console.error("error", error);
-      set({ error: "Ошибка при загрузке рецептов", isLoading: false });
+    if (newRecipes && newRecipes.length > 0) {
+      set((state) => ({
+        recipes: skip === 0 ? newRecipes : [...state.recipes, ...newRecipes],
+        isLoading: false,
+      }));
+    } else {
+      set({ isLoading: false });
     }
+
+    return newRecipes ?? null;
   },
   addRecipe: async (formData: FormData) => {
     set({ error: null });

@@ -17,7 +17,7 @@ const generateRecipes = async (number: number) => {
       imageUrl: faker.image.url(),
       ingredients: getRandomIngredients(randomCount).map((ingredient) => ({
         ...ingredient,
-        quantity: faker.number.float(),
+        quantity: faker.number.float({ min: 0.1, max: 10, multipleOf: 0.1 }),
       })),
     };
   });

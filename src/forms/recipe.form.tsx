@@ -136,27 +136,6 @@ const RecipeForm = ({ initialRecipe }: RecipeFormProps) => {
       <div className="space-y-2 w-full">
         {ingredientFields.map((field, index) => (
           <div key={field.id} className="flex items-end gap-2 h-10">
-            {/* <Select
-              isRequired
-              name={`ingredient_${index}`}
-              placeholder="Выберите ингредиент"
-              selectedKeys={field.ingredientId ? [field.ingredientId] : []}
-              classNames={{
-                trigger: "bg-default-100 w-full",
-                innerWrapper: "text-sm",
-                value: "truncate",
-                selectorIcon: "text-black",
-              }}
-              onChange={(e) =>
-                handleIngredientChange(field.id, "ingredientId", e.target.value)
-              }
-            >
-              {ingredients.map((ingredient) => (
-                <SelectItem key={ingredient.id} className="text-black">
-                  {ingredient.name}
-                </SelectItem>
-              ))}
-            </Select> */}
             <IngredientSelect />
             <Input
               isRequired

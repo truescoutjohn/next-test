@@ -2,7 +2,7 @@
 
 import prisma from "../utils/prisma";
 
-export async function getRecipes() {
+export async function getRecipes(amount: number, skip: number) {
   try {
     const recipes = await prisma.recipe.findMany({
       include: {
@@ -12,6 +12,8 @@ export async function getRecipes() {
           },
         },
       },
+      take: amount,
+      skip,
     });
 
     return { success: true, recipes };
