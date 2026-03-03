@@ -1,21 +1,83 @@
 "use server";
 
-import { Prisma } from "../generated/prisma/client";
+import { Unit, Category, Prisma } from "../generated/prisma/client";
 import { IFilters } from "../types/filters";
 import prisma from "../utils/prisma";
 
 export async function getRecipes(
   amount: number,
   skip: number,
-  filters: IFilters,
+  filters?: IFilters,
 ) {
   try {
-    const where: Prisma.RecipeWhereInput = {};
-    where.OR = [
-      { name: { contains: filters.searchQuery, mode: "insensitive" } },
-      { description: { contains: filters.searchQuery, mode: "insensitive" } },
-    ];
+    if (!filters) {
+      const recipes = await prisma.recipe.findMany({
+        include: {
+          ingredients: {
+            include: {
+              ingredient: true,
+            },
+          },
+        },
+        take: amount,
+        skip,
+        orderBy: { createdAt: "desc" },
+      });
+      return { success: true, recipes };
+    }
+    // 1. Создаем строго типизированный массив условий
+    const andConditions: Prisma.RecipeWhereInput[] = [];
+    // 2. Текстовый поиск
+    if (filters.searchQuery && filters.searchQuery.trim() !== "") {
+      andConditions.push({
+        OR: [
+          { name: { contains: filters.searchQuery, mode: "insensitive" } },
+          {
+            description: { contains: filters.searchQuery, mode: "insensitive" },
+          },
+        ],
+      });
+    }
+
+    // 3. Даты (Критический момент!)
+    if (filters.dateFrom || filters.dateTo) {
+      const dateFilter: Prisma.DateTimeFilter<"Recipe"> = {};
+
+      if (filters.dateFrom) {
+        const start = new Date(filters.dateFrom);
+        start.setHours(0, 0, 0, 0);
+        dateFilter.gte = start;
+      }
+
+      if (filters.dateTo) {
+        const end = new Date(filters.dateTo);
+        end.setHours(23, 59, 59, 999);
+        dateFilter.lte = end;
+      }
+
+      andConditions.push({ createdAt: dateFilter });
+    }
+
+    // 4. Юниты и Категории
+    if (filters.unit || filters.category) {
+      andConditions.push({
+        ingredients: {
+          some: {
+            ingredient: {
+              // Важно: проверяем наличие каждого поля отдельно внутри объекта
+              ...(filters.unit && { unit: filters.unit as Unit }),
+              ...(filters.category && {
+                category: filters.category as Category,
+              }),
+            },
+          },
+        },
+      });
+    }
+
+    // 5. Выполняем запрос с динамическим where
     const recipes = await prisma.recipe.findMany({
+      where: andConditions.length > 0 ? { AND: andConditions } : {},
       include: {
         ingredients: {
           include: {
@@ -23,11 +85,10 @@ export async function getRecipes(
           },
         },
       },
-      where,
       take: amount,
       skip,
+      orderBy: { createdAt: "desc" },
     });
-
     return { success: true, recipes };
   } catch (error) {
     console.error("Error fetching recipes:", error);

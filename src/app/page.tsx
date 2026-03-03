@@ -5,17 +5,11 @@ import Link from "next/link";
 import FilterPanel from "../forms/filters-panel.form";
 
 export default async function Home() {
-  const result = await getRecipes(6, 0, {
-    searchQuery: "",
-    dateFrom: "",
-    dateTo: "",
-    unit: "",
-    category: "",
-  });
+  const result = await getRecipes(6, 0);
   const initialRecipes = result.success ? result.recipes : [];
 
   return (
-    <main className="max-w-[1024px] mx-auto px-6">
+    <main className="w-full max-w-[1024px] mx-auto px-6">
       <div className="flex justify-center mb-4">
         <Link href="/recipes/new">
           <Button color="primary">Добавить рецепт</Button>

@@ -45,6 +45,7 @@ export const useRecipeStore = create<IRecipeState>((set, get) => ({
     if (get().isLoading) return null;
 
     const { filters } = get();
+    console.log(filters);
     set({ isLoading: true });
 
     try {

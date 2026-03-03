@@ -7,6 +7,7 @@ import { IRecipe } from "@/src/types/recipe";
 import RecipeCard from "../../common/recipe-card";
 import { motion } from "framer-motion";
 import { Spinner } from "@heroui/react";
+import { set } from "zod";
 
 export default function RecipeFeed({
   initialRecipes,
@@ -23,6 +24,19 @@ export default function RecipeFeed({
   );
   const [initialLoadCount, setInitialLoadCount] = useState(IMAGE_PER_PAGE);
   const isFetching = useRef(false);
+  const [isReady, setIsReady] = useState(false);
+
+  const updateInitialIsReady = useEffectEvent(() => {
+    setIsReady(true);
+  });
+
+  useEffect(() => {
+    // Записываем начальные данные в стор только один раз при монтировании
+    useRecipeStore.setState({ recipes: initialRecipes });
+    updateInitialIsReady();
+  }, []);
+
+  const allRecipes = isReady ? recipes : initialRecipes;
 
   useEffect(() => {
     if (useRecipeStore.getState().recipes.length === 0) {
@@ -52,11 +66,14 @@ export default function RecipeFeed({
     updateInitialLoadCount(isMobile ? IMAGE_PER_PAGE_MOBILE : IMAGE_PER_PAGE);
   }, []);
 
-  const allRecipes = recipes.length > 0 ? recipes : initialRecipes;
-
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {allRecipes.length === 0 && (
+          <div className="col-span-full text-center py-10">
+            <p className="text-gray-500">Нет рецептов для отображения</p>
+          </div>
+        )}
         {allRecipes.map((recipe, index) => (
           <motion.div
             key={recipe.id}

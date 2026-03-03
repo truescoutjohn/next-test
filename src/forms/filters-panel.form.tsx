@@ -5,37 +5,20 @@ import { Input, Select, SelectItem, Button, Form } from "@heroui/react";
 import { SearchIcon, FilterIcon } from "lucide-react";
 import { useRecipeStore } from "../store/recipe.store";
 
-// interface FormData {
-//   searchQuery: string;
-//   dateFrom: string;
-//   dateTo: string;
-//   unit: string;
-//   category: string;
-// }
-
 export default function FilterPanel() {
   const { filters, setFilters, loadRecipes } = useRecipeStore();
-  // const [formData, setFormData] = useState<FormData>({
-  //   searchQuery: "",
-  //   dateFrom: "",
-  //   dateTo: "",
-  //   unit: "",
-  //   category: "",
-  // });
 
   const submitHandler = () => {
-    // setFilters("searchQuery", formData.searchQuery);
-    // setFilters("dateFrom", formData.dateFrom);
-    // setFilters("dateTo", formData.dateTo);
-    // setFilters("unit", formData.unit);
-    // setFilters("category", formData.category);
     loadRecipes(6, 0);
   };
 
   return (
     <Form
-      className="w-full max-w-[1024px] mb-12 p-6 bg-content rounded-2xl shadow-medium "
-      action={submitHandler}
+      className="sticky top-[69px] z-100 w-full max-w-[1024px] mb-12 p-6 bg-primary-100 rounded-2xl shadow-medium "
+      onSubmit={(e) => {
+        e.preventDefault();
+        submitHandler();
+      }}
     >
       <Input
         isClearable
@@ -48,6 +31,7 @@ export default function FilterPanel() {
         type="search"
         value={filters.searchQuery ?? ""}
         onChange={(event) => setFilters("searchQuery", event.target.value)}
+        onClear={() => setFilters("searchQuery", "")}
       />
 
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,7 +76,7 @@ export default function FilterPanel() {
           labelPlacement="outside"
           placeholder="Все категории"
           items={Array.from(CATEGORY_OPTIONS)}
-          selectedKeys={filters.category ? [filters.category] : []}
+          selectedKeys={new Set(filters.category ? [filters.category] : [])}
           onSelectionChange={(keys) => {
             const value = Array.from(keys)[0] as string;
             setFilters("category", value || "");
