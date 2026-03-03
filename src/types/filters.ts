@@ -5,6 +5,6 @@ export interface IFilters {
   searchQuery: string;
   dateFrom: string;
   dateTo: string;
-  unit: typeof CATEGORY_OPTIONS | "";
-  category: typeof UNIT_OPTIONS | "";
+  unit: (typeof UNIT_OPTIONS)[number]["value"] | "";
+  category: (typeof CATEGORY_OPTIONS)[number]["value"] | "";
 }

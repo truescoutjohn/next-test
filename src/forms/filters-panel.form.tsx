@@ -72,30 +72,36 @@ export default function FilterPanel() {
         <Select
           label="Units"
           labelPlacement="outside"
-          placeholder={
-            UNIT_OPTIONS.find((u) => u.value === filters.unit)?.label ||
-            "Все единицы измерения"
-          }
+          placeholder="Все единицы измерения"
+          items={Array.from(UNIT_OPTIONS)}
+          selectedKeys={filters.unit ? [filters.unit] : []}
           onSelectionChange={(keys) => {
             const value = Array.from(keys)[0] as string;
-            setFilters("unit", value);
+            setFilters("unit", value || "");
           }}
-          selectedKeys={filters.unit ? [filters.unit] : []}
         >
           {UNIT_OPTIONS.map((unit) => (
-            <SelectItem key={unit.value}>{unit.label}</SelectItem>
+            <SelectItem key={unit.value} textValue={unit.label}>
+              {unit.label}
+            </SelectItem>
           ))}
         </Select>
 
         <Select
           label="Category"
           labelPlacement="outside"
-          placeholder={filters.category ? filters.category : "Все категории"}
-          onChange={(event) => setFilters("category", event.target.value)}
+          placeholder="Все категории"
+          items={Array.from(CATEGORY_OPTIONS)}
           selectedKeys={filters.category ? [filters.category] : []}
+          onSelectionChange={(keys) => {
+            const value = Array.from(keys)[0] as string;
+            setFilters("category", value || "");
+          }}
         >
           {CATEGORY_OPTIONS.map((category) => (
-            <SelectItem key={category.value}>{category.label}</SelectItem>
+            <SelectItem key={category.value} textValue={category.label}>
+              {category.label}
+            </SelectItem>
           ))}
         </Select>
       </div>
