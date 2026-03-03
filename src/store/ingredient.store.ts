@@ -51,7 +51,6 @@ export const useIngredientStore = create<IngredientState>((set) => ({
     }
   },
   removeIngredient: async (id: string) => {
-    // Реализуйте логику удаления ингредиента, используя deleteIngredient
     set({ isLoading: true, error: null });
 
     try {

@@ -4,6 +4,7 @@ import {
   getRecipes,
   updateRecipe,
 } from "../actions/recipe";
+import { IFilters } from "../types/filters";
 import { IRecipe } from "../types/recipe";
 import { create } from "zustand";
 
@@ -15,34 +16,61 @@ interface IActionResult {
 
 interface IRecipeState {
   recipes: IRecipe[];
+  filters: IFilters;
   isLoading: boolean;
   error: string | null;
+  setFilters: (key: string, value: string) => void;
   loadRecipes: (amount: number, skip: number) => Promise<IRecipe[] | null>;
   addRecipe: (formData: FormData) => Promise<IActionResult>;
   updateRecipe: (id: string, formData: FormData) => Promise<IActionResult>;
   removeRecipe: (id: string) => Promise<void>;
 }
 
-export const useRecipeStore = create<IRecipeState>((set) => ({
+export const useRecipeStore = create<IRecipeState>((set, get) => ({
   recipes: [],
+  filters: {
+    searchQuery: "",
+    dateFrom: "",
+    dateTo: "",
+    unit: "",
+    category: "",
+  },
   isLoading: false,
   error: null,
+  setFilters: (key: string, value: string) => {
+    set((prev) => ({ filters: { ...prev.filters, [key]: value } }));
+    // get().loadRecipes(6, 0);
+  },
   loadRecipes: async (take: number, skip: number) => {
-    set({ isLoading: skip === 0 });
+    if (get().isLoading) return null;
 
-    const result = await getRecipes(take, skip);
-    const newRecipes = result.recipes;
+    const { filters } = get();
+    set({ isLoading: true });
 
-    if (newRecipes && newRecipes.length > 0) {
-      set((state) => ({
-        recipes: skip === 0 ? newRecipes : [...state.recipes, ...newRecipes],
-        isLoading: false,
-      }));
-    } else {
-      set({ isLoading: false });
+    try {
+      const result = await getRecipes(take, skip, filters);
+      const newRecipes = result.recipes || [];
+
+      set((state) => {
+        if (skip === 0) {
+          return { recipes: newRecipes, isLoading: false };
+        }
+
+        const existingIds = new Set(state.recipes.map((r) => r.id));
+        const filteredNew = newRecipes.filter((r) => !existingIds.has(r.id));
+
+        return {
+          recipes: [...state.recipes, ...filteredNew],
+          isLoading: false,
+        };
+      });
+
+      return newRecipes;
+    } catch (error) {
+      console.error("Error loading recipes:", error);
+      set({ error: "Ошибка при загрузке", isLoading: false });
+      return null;
     }
-
-    return newRecipes ?? null;
   },
   addRecipe: async (formData: FormData) => {
     set({ error: null });

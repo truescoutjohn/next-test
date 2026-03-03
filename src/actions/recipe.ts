@@ -1,9 +1,20 @@
 "use server";
 
+import { Prisma } from "../generated/prisma/client";
+import { IFilters } from "../types/filters";
 import prisma from "../utils/prisma";
 
-export async function getRecipes(amount: number, skip: number) {
+export async function getRecipes(
+  amount: number,
+  skip: number,
+  filters: IFilters,
+) {
   try {
+    const where: Prisma.RecipeWhereInput = {};
+    where.OR = [
+      { name: { contains: filters.searchQuery, mode: "insensitive" } },
+      { description: { contains: filters.searchQuery, mode: "insensitive" } },
+    ];
     const recipes = await prisma.recipe.findMany({
       include: {
         ingredients: {
@@ -12,6 +23,7 @@ export async function getRecipes(amount: number, skip: number) {
           },
         },
       },
+      where,
       take: amount,
       skip,
     });
