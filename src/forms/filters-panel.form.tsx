@@ -29,7 +29,6 @@ export default function FilterPanel() {
     // setFilters("dateTo", formData.dateTo);
     // setFilters("unit", formData.unit);
     // setFilters("category", formData.category);
-    console.log(filters);
     loadRecipes(6, 0);
   };
 
