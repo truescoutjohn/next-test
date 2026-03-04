@@ -5,22 +5,28 @@ import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 import { IIngredient } from "@/src/types/ingredients";
 
-const IngredientSelect = () => {
+interface IngredientSelectProps {
+  name: string;
+  value: string;
+  onChange: (id: string) => void;
+}
+
+const IngredientSelect = ({ name, value, onChange }: IngredientSelectProps) => {
   const [filterText, setFilterText] = useState("");
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const timer = useRef<NodeJS.Timeout | null>(null);
-  console.log(filterText);
-  const inputChangeHandler = (value: string) => {
+
+  const inputChangeHandler = (val: string) => {
     setIsLoading(true);
-    setFilterText(value);
+    setFilterText(val);
 
     if (timer.current) {
       clearTimeout(timer.current);
     }
 
     timer.current = setTimeout(async () => {
-      const result = await getIngredients(value);
+      const result = await getIngredients(val);
       setIngredients(result.ingredients || []);
       setIsLoading(false);
     }, 300);
@@ -33,23 +39,45 @@ const IngredientSelect = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!value) return;
+    const current = ingredients.find((ing) => ing.id === value);
+    if (current) {
+      setFilterText(current.name);
+    }
+  }, [value, ingredients]);
+
   return (
-    <Autocomplete
-      items={ingredients}
-      isLoading={isLoading}
-      inputValue={filterText}
-      onInputChange={inputChangeHandler}
-      placeholder="Поиск ингредиентов"
-      aria-label="Поиск ингредиентов"
-      size="md"
-      variant="flat"
-      classNames={{
-        base: "max-w-full",
-        listbox: "h-10 min-h-10 bg-default-100",
-      }}
-    >
-      {(item) => <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>}
-    </Autocomplete>
+    <>
+      <Autocomplete
+        items={ingredients}
+        isLoading={isLoading}
+        inputValue={filterText}
+        onInputChange={inputChangeHandler}
+        selectedKey={value || undefined}
+        onSelectionChange={(key) => {
+          const id = key ? String(key) : "";
+          onChange(id);
+          const current = ingredients.find((ing) => ing.id === id);
+          if (current) {
+            setFilterText(current.name);
+          }
+        }}
+        placeholder="Поиск ингредиентов"
+        aria-label="Поиск ингредиентов"
+        size="md"
+        variant="flat"
+        classNames={{
+          base: "max-w-full",
+          listbox: "h-10 min-h-10 bg-default-100",
+        }}
+      >
+        {(item) => (
+          <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>
+        )}
+      </Autocomplete>
+      <input type="hidden" name={name} value={value} />
+    </>
   );
 };
 

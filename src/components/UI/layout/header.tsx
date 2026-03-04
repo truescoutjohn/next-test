@@ -39,7 +39,7 @@ export default function Header() {
 
   const NavbarMenu = () =>
     siteConfig.navigationBar
-      .filter((item) => (item.href === "/ingredients" ? isAuth : true))
+      .filter((item) => (item.protected ? isAuth : true))
       .map((item) => {
         const isActive = pathname === item.href;
 

@@ -5,7 +5,8 @@ export const siteConfig = {
   такие как эчпочмак, кыстыбый, чак-чак и многое другое.`,
   navigationBar: [
     { name: "Рецепты", href: "/" },
-    { name: "Ингредиенты", href: "/ingredients" },
+    { name: "Ингредиенты", href: "/ingredients", protected: true },
+    { name: "Личный кабинет", href: "/cabinet", protected: true },
     { name: "О нас", href: "/about" },
   ],
   pagesContent: {

@@ -6,6 +6,7 @@ import { useRecipeStore } from "../store/recipe.store";
 import { IRecipe } from "../types/recipe";
 import { useRouter } from "next/navigation";
 import IngredientSelect from "../components/UI/select/ingredients-select";
+import { UploadButton } from "../utils/uploadthing";
 
 interface RecipeFormProps {
   initialRecipe?: IRecipe;
@@ -25,6 +26,7 @@ const initialState = {
 
 const RecipeForm = ({ initialRecipe }: RecipeFormProps) => {
   const [error, setError] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [formData, setFormData] = useState({
     name: initialRecipe?.name || initialState.name,
@@ -133,10 +135,63 @@ const RecipeForm = ({ initialRecipe }: RecipeFormProps) => {
         onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
       />
 
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-default-500">
+          Или загрузите изображение (до 4MB):
+        </p>
+        <UploadButton
+          endpoint="imageUploader"
+          appearance={{
+            container: "w-fit",
+            button:
+              "bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:bg-primary-600 transition-colors",
+          }}
+          content={{
+            button({ ready }) {
+              if (!ready) return "Подготовка...";
+
+              return (
+                <div className="flex items-center gap-2">
+                  {isUploadingImage && (
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  )}
+                  <span>
+                    {isUploadingImage ? "Загрузка..." : "Загрузить изображение"}
+                  </span>
+                </div>
+              );
+            },
+          }}
+          onClientUploadComplete={(res) => {
+            setIsUploadingImage(false);
+            if (!res || res.length === 0) return;
+            const file = res[0] as { url?: string; ufsUrl?: string } | any;
+            const url = file.ufsUrl || file.url;
+            if (url) {
+              setFormData((prev) => ({ ...prev, imageUrl: url }));
+            }
+          }}
+          onUploadError={(error: Error) => {
+            setIsUploadingImage(false);
+            console.error("Ошибка загрузки изображения:", error);
+            setError("Ошибка загрузки изображения. Попробуйте ещё раз.");
+          }}
+          onUploadBegin={() => {
+            setIsUploadingImage(true);
+          }}
+        />
+      </div>
+
       <div className="space-y-2 w-full">
         {ingredientFields.map((field, index) => (
           <div key={field.id} className="flex items-end gap-2 h-10">
-            <IngredientSelect />
+            <IngredientSelect
+              name={`ingredient_${index}`}
+              value={field.ingredientId}
+              onChange={(id) =>
+                handleIngredientChange(field.id, "ingredientId", id)
+              }
+            />
             <Input
               isRequired
               name={`quantity_${index}`}
